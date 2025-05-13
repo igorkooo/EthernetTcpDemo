@@ -1,0 +1,50 @@
+# === General ===
+*.swp
+*.tmp
+*.bak
+*.log
+
+# === CubeMX auto-generated / STM32CubeIDE ===
+#.ioc
+.cproject
+.project
+.mxproject
+.settings/
+*.launch
+
+# === Build artifacts ===
+build/
+Debug/
+Release/
+*.elf
+*.bin
+*.hex
+*.map
+*.lst
+*.d
+*.o
+*.su
+
+# === Middlewares & Drivers backups (if any) ===
+Drivers/.Backup/
+Middlewares/.Backup/
+
+# === VS Code specific ===
+.vscode/*
+!.vscode/settings.json
+!.vscode/launch.json
+!.vscode/tasks.json
+
+# === CMake ===
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+Makefile
+
+# === Git ===
+*.orig
+*.rej
+*~
+
+# === Other user temp files ===
+*.DS_Store
