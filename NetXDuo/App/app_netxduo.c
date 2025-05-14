@@ -59,7 +59,7 @@ NX_DHCP        DHCPClient;
 static VOID nx_app_thread_entry (ULONG thread_input);
 static VOID ip_address_change_notify_callback(NX_IP *ip_instance, VOID *ptr);
 /* USER CODE BEGIN PFP */
-extern VOID _nx_driver_stm32h7(NX_IP_DRIVER *driver_req_ptr);
+
 /* USER CODE END PFP */
 
 /**

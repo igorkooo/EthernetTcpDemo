@@ -23,7 +23,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include "nx_stm32_phy_driver.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -122,7 +122,11 @@ int main(void)
   MX_ETH_Init();
   MX_USART2_UART_Init();
   /* USER CODE BEGIN 2 */
-
+  /* Initialize phy */
+  if (nx_eth_phy_init() != ETH_PHY_STATUS_OK)
+  {
+    Error_Handler();
+  }
   /* USER CODE END 2 */
 
   MX_ThreadX_Init();
