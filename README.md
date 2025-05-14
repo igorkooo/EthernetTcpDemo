@@ -1,6 +1,7 @@
 # EthernetTcpDemo for NUCLEO-H723ZG
 
-This STM32 project demonstrates basic Ethernet functionality using **ThreadX** and **NetX Duo** with **DHCP**, status LEDs, and auto-generated code from **STM32CubeMX**. The project contains properly done .ioc file. 
+This STM32 project demonstrates basic Ethernet functionality using **ThreadX** and **NetX Duo** with **DHCP**, status LEDs, and auto-generated code from **STM32CubeMX**.  
+The project contains a properly configured `.ioc` file for the NUCLEO-H723ZG board, enabling reproducible hardware setup and CubeMX regeneration.
 
 ## ✅ Features
 

@@ -11,32 +11,24 @@
     "tasks": [
         {
             "type": "shell",
-            "label": "CubeProg: Flash project (SWD)",
-            "command": "STM32_Programmer_CLI",
+            "label": "Build Firmware",
+            "command": "cmake",
             "args": [
-                "--connect",
-                "port=swd",
-                "--download",
-                "${command:cmake.launchTargetPath}",
-                // Let CMake extension decide executable: "${command:cmake.launchTargetPath}",
-                "-hardRst", // Hardware reset - if rst pin is connected
-                "-rst", // Software reset (backup)
-                "--start" // Start execution
+                "--build",
+                "build",
+                "-j",
+                "${command:cpus}"
             ],
             "options": {
                 "cwd": "${workspaceFolder}"
             },
-            "problemMatcher": []
+            "problemMatcher": [],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
         },
         {
-            "label": "Build + Flash",
-            "dependsOrder": "sequence",
-            "dependsOn": [
-                "CMake: clean rebuild",
-                "CubeProg: Flash project (SWD)",
-            ]
-        },
-                {
             "type": "cmake",
             "label": "CMake: clean rebuild",
             "command": "cleanRebuild",
@@ -47,6 +39,32 @@
             "group": "build",
             "problemMatcher": [],
             "detail": "CMake template clean rebuild task"
+        },
+        {
+            "type": "shell",
+            "label": "CubeProg: Flash project (SWD)",
+            "command": "STM32_Programmer_CLI",
+            "args": [
+                "--connect",
+                "port=swd",
+                "--download",
+                "${command:cmake.launchTargetPath}",
+                "-hardRst",
+                "-rst",
+                "--start"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "Build + Flash",
+            "dependsOrder": "sequence",
+            "dependsOn": [
+                "Build Firmware",
+                "CubeProg: Flash project (SWD)"
+            ]
         },
         {
             "type": "shell",

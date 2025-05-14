@@ -84,9 +84,9 @@ UINT MX_NetXDuo_Init(VOID *memory_ptr);
 #define NX_APP_INSTANCE_PRIORITY             NX_APP_THREAD_PRIORITY
 #endif
 
-#define NX_APP_DEFAULT_IP_ADDRESS                   IP_ADDRESS(192, 168, 1, 1)
+#define NX_APP_DEFAULT_IP_ADDRESS                   0
 
-#define NX_APP_DEFAULT_NET_MASK                     IP_ADDRESS(255, 255, 255, 0)
+#define NX_APP_DEFAULT_NET_MASK                     0
 
 /* USER CODE BEGIN 1 */
 

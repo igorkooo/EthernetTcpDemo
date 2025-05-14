@@ -27,6 +27,8 @@
 #include "tx_api.h"
 #include "nx_api.h"
 #include "nxd_dhcp_client.h"
+#include "app_netxduo.h"
+#include <stdio.h>
 
 /* USER CODE END Includes */
 
@@ -47,7 +49,10 @@
 #define LED_GREEN_OFF()   HAL_GPIO_WritePin(GPIOB, GPIO_PIN_0, GPIO_PIN_RESET)
 #define LED_RED_ON()      HAL_GPIO_WritePin(GPIOB, GPIO_PIN_14, GPIO_PIN_SET)
 #define LED_RED_OFF()     HAL_GPIO_WritePin(GPIOB, GPIO_PIN_14, GPIO_PIN_RESET)
+#define LED_BLUE_ON()     HAL_GPIO_WritePin(GPIOE, GPIO_PIN_1, GPIO_PIN_SET)
+#define LED_BLUE_OFF()    HAL_GPIO_WritePin(GPIOE, GPIO_PIN_1, GPIO_PIN_RESET)
 
+#define LED_BLUE_TOGGLE() HAL_GPIO_TogglePin(GPIOE, GPIO_PIN_1)
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
@@ -128,53 +133,81 @@ void tx_app_thread_entry(ULONG thread_input)
   // not used
   (void)thread_input;
 
-  // Initial state: red on, green off
-  LED_GREEN_OFF();
-  LED_RED_ON();
+  printf("🔧 [DEBUG] ThreadX app thread started\r\n");
 
   while (1)
   {
-      // Wait for physical Ethernet link
-      status = nx_ip_interface_status_check(&NetXDuoEthIpInstance, 0, NX_IP_LINK_ENABLED, &actual_status, 100);
-      if (status == NX_SUCCESS && actual_status == NX_IP_LINK_ENABLED)
-      {
-          // Link is up, create and start DHCP client
-          nx_dhcp_create(&dhcp_client, &NetXDuoEthIpInstance, "DHCP Client");
-          nx_dhcp_start(&dhcp_client);
+    // Check if Ethernet cable is connected (link up)
+    status = nx_ip_interface_status_check(&NetXDuoEthIpInstance, 0, NX_IP_LINK_ENABLED, &actual_status, NX_APP_DEFAULT_TIMEOUT);
 
-          // Wait until an IP address is assigned
-          while (1)
-          {
-              nx_ip_address_get(&NetXDuoEthIpInstance, &ip_address, &netmask);
-              if (ip_address != 0)
-              {
-                  LED_GREEN_ON();
-                  LED_RED_OFF();
-                  break;
-              }
-              tx_thread_sleep(50);
-          }
+    if (status == NX_SUCCESS && actual_status == NX_IP_LINK_ENABLED)
+    {
+        // Link is active
+        LED_RED_OFF();   // Error LED off
+        LED_BLUE_ON();   // DHCP in progress
+        LED_GREEN_OFF(); // Wait before turning green
 
-          // Remain here while link is up
-          while (1)
-          {
-              status = nx_ip_interface_status_check(&NetXDuoEthIpInstance, 0, NX_IP_LINK_ENABLED, &actual_status, 100);
-              if (status != NX_SUCCESS || actual_status != NX_IP_LINK_ENABLED)
-              {
-                  break;  // Link down
-              }
-              tx_thread_sleep(50);
-          }
+        // Start DHCP client
+        status = nx_dhcp_start(&dhcp_client);
+        if (status != NX_SUCCESS)
+        {
+            LED_BLUE_OFF();
+            LED_RED_ON();
+            tx_thread_sleep(NX_IP_PERIODIC_RATE);
+            continue;
+        }
 
-          // Link down — revert to red LED
-          LED_GREEN_OFF();
-          LED_RED_ON();
+        // Wait for valid IP assignment from DHCP
+        do
+        {
+            tx_thread_sleep(10);  // Small delay before checking
+            status = nx_ip_address_get(&NetXDuoEthIpInstance, &ip_address, &netmask);
 
-          nx_dhcp_stop(&dhcp_client);
-          nx_dhcp_delete(&dhcp_client);
-      }
+            // Blink blue LED while waiting
+            LED_BLUE_TOGGLE();
 
-      tx_thread_sleep(100); // Polling delay
+        } while ((status != NX_SUCCESS || ip_address == 0) && actual_status == NX_IP_LINK_ENABLED);
+
+        if (ip_address != 0)
+        {
+            LED_BLUE_OFF();   // DHCP done
+            LED_GREEN_ON();   // Network ready
+            LED_RED_OFF();
+        }
+        else
+        {
+            // Failed to get IP
+            LED_GREEN_OFF();
+            LED_BLUE_OFF();
+            LED_RED_ON();
+            continue;
+        }
+
+        // Monitor link status continuously
+        while (1)
+        {
+            status = nx_ip_interface_status_check(&NetXDuoEthIpInstance, 0, NX_IP_LINK_ENABLED, &actual_status, NX_APP_DEFAULT_TIMEOUT);
+            if (status != NX_SUCCESS || actual_status != NX_IP_LINK_ENABLED)
+            {
+                // Link lost
+                LED_GREEN_OFF();
+                LED_BLUE_OFF();
+                LED_RED_ON();
+                break;
+            }
+
+            tx_thread_sleep(NX_IP_PERIODIC_RATE);
+        }
+    }
+    else
+    {
+        // Ethernet link not detected
+        LED_GREEN_OFF();
+        LED_BLUE_OFF();
+        LED_RED_ON();
+        tx_thread_sleep(NX_IP_PERIODIC_RATE);
+        printf("🔧 [DEBUG] Ethernet link not detected\r\n");
+    }
   }
   /* USER CODE END tx_app_thread_entry */
 }
