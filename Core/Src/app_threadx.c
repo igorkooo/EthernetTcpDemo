@@ -23,9 +23,11 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include "main.h"
 #include "tx_api.h"
 #include "nx_api.h"
 #include "nxd_dhcp_client.h"
+
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -54,7 +56,7 @@ TX_SEMAPHORE tx_app_semaphore;
 TX_MUTEX tx_app_mutex;
 /* USER CODE BEGIN PV */
 // External NetX objects declared in app_netxduo.c
-extern NX_IP ip;
+extern NX_IP NetXDuoEthIpInstance;
 extern NX_PACKET_POOL packet_pool;
 NX_DHCP dhcp_client;
 /* USER CODE END PV */
@@ -113,10 +115,6 @@ UINT App_ThreadX_Init(VOID *memory_ptr)
 /**
   * @brief  Function implementing the tx_app_thread_entry thread.
   * @param  thread_input: Hardcoded to 0.
-  * Main application thread entry point.
-  * Monitors Ethernet link status.
-  * If Ethernet is connected, it starts DHCP, waits for IP assignment,
-  * and lights the green LED (LD1). Red LED (LD3) is on when disconnected.
   * @retval None
   */
 void tx_app_thread_entry(ULONG thread_input)
@@ -127,6 +125,9 @@ void tx_app_thread_entry(ULONG thread_input)
   ULONG ip_address;
   ULONG netmask;
 
+  // not used
+  (void)thread_input;
+
   // Initial state: red on, green off
   LED_GREEN_OFF();
   LED_RED_ON();
@@ -134,17 +135,17 @@ void tx_app_thread_entry(ULONG thread_input)
   while (1)
   {
       // Wait for physical Ethernet link
-      status = nx_ip_interface_status_check(&ip, 0, NX_IP_LINK_ENABLED, &actual_status, 100);
+      status = nx_ip_interface_status_check(&NetXDuoEthIpInstance, 0, NX_IP_LINK_ENABLED, &actual_status, 100);
       if (status == NX_SUCCESS && actual_status == NX_IP_LINK_ENABLED)
       {
           // Link is up, create and start DHCP client
-          nx_dhcp_create(&dhcp_client, &ip, "DHCP Client");
+          nx_dhcp_create(&dhcp_client, &NetXDuoEthIpInstance, "DHCP Client");
           nx_dhcp_start(&dhcp_client);
 
           // Wait until an IP address is assigned
           while (1)
           {
-              nx_ip_address_get(&ip, &ip_address, &netmask);
+              nx_ip_address_get(&NetXDuoEthIpInstance, &ip_address, &netmask);
               if (ip_address != 0)
               {
                   LED_GREEN_ON();
@@ -157,7 +158,7 @@ void tx_app_thread_entry(ULONG thread_input)
           // Remain here while link is up
           while (1)
           {
-              status = nx_ip_interface_status_check(&ip, 0, NX_IP_LINK_ENABLED, &actual_status, 100);
+              status = nx_ip_interface_status_check(&NetXDuoEthIpInstance, 0, NX_IP_LINK_ENABLED, &actual_status, 100);
               if (status != NX_SUCCESS || actual_status != NX_IP_LINK_ENABLED)
               {
                   break;  // Link down

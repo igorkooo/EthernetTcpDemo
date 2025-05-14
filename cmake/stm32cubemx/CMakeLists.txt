@@ -17,11 +17,14 @@ set(MX_Include_Dirs
     ${CMAKE_SOURCE_DIR}/Core/Inc
     ${CMAKE_SOURCE_DIR}/AZURE_RTOS/App
     ${CMAKE_SOURCE_DIR}/NetXDuo/App
+    ${CMAKE_SOURCE_DIR}/NetXDuo/Target
     ${CMAKE_SOURCE_DIR}/Drivers/STM32H7xx_HAL_Driver/Inc
     ${CMAKE_SOURCE_DIR}/Drivers/STM32H7xx_HAL_Driver/Inc/Legacy
     ${CMAKE_SOURCE_DIR}/Drivers/BSP/STM32H7xx_Nucleo
     ${CMAKE_SOURCE_DIR}/Drivers/CMSIS/Device/ST/STM32H7xx/Include
     ${CMAKE_SOURCE_DIR}/Drivers/CMSIS/Include
+    ${CMAKE_SOURCE_DIR}/Drivers/BSP/Components/lan8742/
+    ${CMAKE_SOURCE_DIR}/Middlewares/ST/netxduo/common/drivers/ethernet/
     ${CMAKE_SOURCE_DIR}/Middlewares/ST/netxduo/addons/dhcp/
     ${CMAKE_SOURCE_DIR}/Middlewares/ST/netxduo/common/inc/
     ${CMAKE_SOURCE_DIR}/Middlewares/ST/netxduo/ports/cortex_m7/gnu/inc/
@@ -72,11 +75,16 @@ set(STM32_Drivers_Src
     ${CMAKE_SOURCE_DIR}/Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_uart_ex.c
     ${CMAKE_SOURCE_DIR}/Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_uart.c
     ${CMAKE_SOURCE_DIR}/Drivers/BSP/STM32H7xx_Nucleo/stm32h7xx_nucleo.c
+    ${CMAKE_SOURCE_DIR}/Drivers/BSP/Components/lan8742/lan8742.c
 )
 
 # Drivers Midllewares
 
 
+set(Interfaces_Src
+    ${CMAKE_SOURCE_DIR}/Middlewares/ST/netxduo/common/drivers/ethernet/lan8742/nx_stm32_phy_driver.c
+    ${CMAKE_SOURCE_DIR}/Middlewares/ST/netxduo/common/drivers/ethernet/nx_stm32_eth_driver.c
+)
 set(ThreadX_Src
     ${CMAKE_SOURCE_DIR}/Middlewares/ST/threadx/ports/cortex_m7/gnu/src/tx_thread_context_restore.S
     ${CMAKE_SOURCE_DIR}/Middlewares/ST/threadx/ports/cortex_m7/gnu/src/tx_thread_context_save.S
@@ -757,7 +765,7 @@ set(MX_LINK_DIRS
 # Project static libraries
 set(MX_LINK_LIBS 
     STM32_Drivers
-    ThreadX	NetXDuo	
+    Interfaces	ThreadX	NetXDuo	
 )
 # Interface library for includes and symbols
 add_library(stm32cubemx INTERFACE)
@@ -769,6 +777,11 @@ add_library(STM32_Drivers OBJECT)
 target_sources(STM32_Drivers PRIVATE ${STM32_Drivers_Src})
 target_link_libraries(STM32_Drivers PUBLIC stm32cubemx)
 
+
+# Create Interfaces static library
+add_library(Interfaces OBJECT)
+target_sources(Interfaces PRIVATE ${Interfaces_Src})
+target_link_libraries(Interfaces PUBLIC stm32cubemx)
 
 # Create ThreadX static library
 add_library(ThreadX OBJECT)
