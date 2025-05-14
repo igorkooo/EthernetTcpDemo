@@ -1,28 +1,29 @@
-# Ethernet TCP Project with ThreadX and NetX Duo
+# EthernetTcpDemo for NUCLEO-H723ZG
 
-This STM32 project demonstrates basic use of Ethernet with ThreadX RTOS and NetX Duo networking stack.  
-It is built using STM32CubeMX and CMake, and runs on the STM32H723ZG Nucleo board.
+This STM32 project demonstrates basic Ethernet functionality using **ThreadX** and **NetX Duo** with **DHCP**, status LEDs, and auto-generated code from **STM32CubeMX**. The project contains properly done .ioc file. 
 
-## Features
+## ✅ Features
 
-- Uses ThreadX RTOS and NetX Duo middleware
-- Detects physical Ethernet link using NetX status check
-- Starts a DHCP client when Ethernet is connected
-- Turns on green LED (LD1) when IP address is assigned
-- Turns on red LED (LD3) when Ethernet is disconnected
-- Ready to be extended with TCP Echo Server or HTTP Server
+- ThreadX RTOS with Azure RTOS integration
+- NetX Duo IP stack with DHCP client
+- Automatic Ethernet link detection
+- Green LED (`LD1`) lights up on IP assignment
+- Red LED (`LD3`) lights up when link is down
+- CMake-based build for VS Code and STM32CubeCLT
+- Generated with STM32CubeMX using X-CUBE-AZRTOS-H7
+- Ready for extension with TCP/HTTP(S) server
 
-## Requirements
+## 🛠 Requirements
 
-- STM32H723ZG Nucleo board
-- STM32CubeMX and STM32CubeCLT (ARM GCC)
-- NetX Duo and ThreadX enabled in CubeMX
-- CMake 3.20+ and VS Code (optional)
-- STM32CubeProgrammer (for flashing)
+- **Board:** [NUCLEO-H723ZG](https://www.st.com/en/evaluation-tools/nucleo-h723zg.html)
+- **Toolchain:** STM32CubeCLT (GCC), CMake ≥ 3.20
+- **Programmer:** STM32CubeProgrammer (CLI or GUI)
+- **IDE (optional):** Visual Studio Code + Cortex-Debug
+- **CubeMX version:** 6.10+ recommended
+- **OS:** macOS (Apple Silicon supported)
 
-## Build and Flash
+## 🚀 Build Instructions
 
 ```bash
 cmake -S . -B build
 cmake --build build -j$(sysctl -n hw.ncpu)
-STM32_Programmer_CLI -c port=SWD -w build/EthernetTcpDemo.elf
