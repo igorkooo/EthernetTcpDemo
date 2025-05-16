@@ -86,9 +86,7 @@
 
 /* If defined, the link driver is able to specify extra capability, such as
    checksum offloading features. */
-/*
 #define NX_ENABLE_INTERFACE_CAPABILITY
-*/
 
 /* NX_PHYSICAL_HEADER Specifies the size in bytes of the physical header of
    the frame. */
@@ -406,9 +404,7 @@
 /* Disables IPv6 functionality when the NetX Duo library is built.
    For applications that do not need IPv6, this avoids pulling in code and
    additional storage space needed to support IPv6. */
-/*
 #define NX_DISABLE_IPV6
-*/
 
 /* Defined, enable IPV6 features. */
 /*
